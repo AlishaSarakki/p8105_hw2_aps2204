@@ -79,3 +79,22 @@ This dataset contains information from the Mr. Trashwheel trash collector in Bal
 
 ## Problem 2
 
+Import and clean NYC transit data
+
+```{r}
+NYCTransit_data = 
+  read_csv(file = "./data/NYC_Transit_Subway_Entrance_And_Exit_Data.csv")
+  names(NYCTransit_data)
+  NYCTransit_data = janitor::clean_names(NYCTransit_data)
+  names(NYCTransit_data)
+  
+
+```
+
+Specify which columns to keep
+
+```{r}
+select(NYCTransit_data, line:entry, vending, ada)
+```
+
+
