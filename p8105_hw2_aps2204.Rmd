@@ -6,6 +6,7 @@ output: github_document
 ```{r}
 library(tidyverse)
 library(readxl)
+library(dplyr)
 ```
 
 ## Problem 1
@@ -87,7 +88,6 @@ NYCTransit_data =
   names(NYCTransit_data)
   NYCTransit_data = janitor::clean_names(NYCTransit_data)
   names(NYCTransit_data)
-  
 
 ```
 
@@ -95,6 +95,12 @@ Specify which columns to keep
 
 ```{r}
 select(NYCTransit_data, line:entry, vending, ada)
+```
+
+Character to Logical Expression Conversion
+```{r}
+NYCTransit_data %>% 
+  mutate(entry = recode(entry, YES = "TRUE", NO = "FALSE"))
 ```
 
 
