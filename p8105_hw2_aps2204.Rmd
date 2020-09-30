@@ -114,6 +114,16 @@ Distinct Stations
 
 ```{r}
   distinct(NYCTransit_data, station_name, line)
+count(distinct(NYCTransit_data, station_name, line))
 ```
+465 total distinct stations
+
+ADA Compliant Stations
+```{r}
+filter(NYCTransit_data, ada == TRUE) %>% 
+distinct(line, station_name) %>%
+count()
+```
+84 stations are ADA compliant. 
 
 
