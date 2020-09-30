@@ -144,6 +144,19 @@ count()
 183 total station entries and exits without vending
 Final proportion: 0.3770492
 
+Reformat route number and route name
+```{r}
+NYCT_tidy =
+  NYCTransit_data%>%
+  mutate_at(vars(route1:route11), as.character) %>%
+  pivot_longer(
+    route1:route11,
+    names_to = "route_no",
+    values_to = "route_name",
+    names_prefix = "route",
+  )
+
+```
 
 
 
