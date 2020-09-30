@@ -7,6 +7,7 @@ output: github_document
 library(tidyverse)
 library(readxl)
 library(dplyr)
+tibble()
 ```
 
 ## Problem 1
@@ -171,5 +172,61 @@ distinct(line, station_name) %>%
 count()
 ```
 
+## Problem 3
 
+Import 538 data
+```{r}
+pols_data = 
+  read_csv(file = "./data/pols-month.csv")
+snp_data = 
+  read_csv(file = "./data/snp.csv")
+unemployment_data = 
+    read_csv(file = "./data/unemployment.csv" )
+```
+
+Clean pols-month data
+```{r}
+clean_pols = 
+  pols_data %>% 
+  separate("mon", into = c("year", "month", "day")) %>% 
+  mutate(month = as.numeric(month))
+
+month_pols = 
+  tibble( 
+   month = (1:12),
+    month_name = month.name) %>% 
+    mutate(month = as.numeric(month))
+
+clean_month_pols = left_join(clean_pols, month_pols, by = "month")
+
+clean_month_pols %>% 
+  mutate(president = case_when(
+    prez_gop == 1 ~ "gop",
+    prez_dem == 1 ~ "dem")) %>% 
+    select(-prez_gop, -prez_dem, -month, -day)
+
+head(arrange(clean_month_pols, year, month_name))
+  
+```
+
+snp cleaning + tidying
+
+```{r}
+snp_data
+clean_snp = 
+  snp_data %>% 
+  separate("date", into = c("month", "day", "year")) %>% 
+  mutate(month = as.numeric(month))
+
+month_snp = 
+  tibble( 
+   month = (1:12),
+    month_name = month.name) %>% 
+    mutate(month = as.numeric(month))
+
+clean_month_snp = left_join(clean_snp, month_snp, by = "month")
+
+clean_month_snp %>% 
+  relocate(year, month)
+```
 
