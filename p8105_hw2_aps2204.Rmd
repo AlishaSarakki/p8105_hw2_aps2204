@@ -126,4 +126,25 @@ count()
 ```
 84 stations are ADA compliant. 
 
+Proportion of station entrances/exits without vending that allow entrance
+```{r}
+NYCTransit_data %>% 
+  mutate(entry = recode(entry, YES = "TRUE", NO = "FALSE")) %>% 
+filter(vending == "NO", entry == "TRUE") %>% 
+  count()
+
+NYCTransit_data %>% 
+  mutate(entry = recode(entry, YES = "TRUE", NO = "FALSE")) %>% 
+filter(vending =="NO") %>% 
+count()
+
+69/183
+```
+69 total station entries and exits without vending that allow entrance
+183 total station entries and exits without vending
+Final proportion: 0.3770492
+
+
+
+
 
