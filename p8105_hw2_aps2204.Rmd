@@ -103,4 +103,12 @@ NYCTransit_data %>%
   mutate(entry = recode(entry, YES = "TRUE", NO = "FALSE"))
 ```
 
+This dataset describes information about each entrance and exit for all subway stations in New York, including, broadly, detailed location of both station and entrance/exit, station name, which routes they lie on, descriptions of entrances (stairs/escalator/etc.), and ADA compliance. Thus far, I have narrowed the scope of this data to include line, latitude and longitude, station name, train routes, entrance type, and whether the station is ADA compliant. I have also cleaned the names of the dataset, and converted the entry expression of "YES/NO" to a logical expression of "TRUE/FALSE".The dimensions are 'nrow(NYCTransit_data)' x 'ncol(NYCTransit_data)'.These data are not tidy.
+
+```{r}
+nrow(NYCTransit_data)
+ncol(NYCTransit_data)
+```
+
+
 
