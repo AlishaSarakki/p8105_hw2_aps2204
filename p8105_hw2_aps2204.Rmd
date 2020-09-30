@@ -155,9 +155,21 @@ NYCT_tidy =
     values_to = "route_name",
     names_prefix = "route",
   )
-
 ```
 
+Distinct Stations Serving A train
+```{r}
+filter(NYCT_tidy, "route_name" == "A" ) %>% 
+distinct(line, station_name) %>%
+count()
+```
+
+Of all distinct stations that serve the A, the following number are ADA compliant.
+```{r}
+filter(NYCT_tidy, "route_name" == "A", ada == TRUE) %>% 
+distinct(line, station_name) %>%
+count()
+```
 
 
 
