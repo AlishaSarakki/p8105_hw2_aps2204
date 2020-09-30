@@ -110,5 +110,10 @@ nrow(NYCTransit_data)
 ncol(NYCTransit_data)
 ```
 
+Distinct Stations
+
+```{r}
+  distinct(NYCTransit_data, station_name, line)
+```
 
 
