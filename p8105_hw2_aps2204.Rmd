@@ -95,33 +95,31 @@ NYCTransit_data =
 Specify which columns to keep
 
 ```{r}
-select(NYCTransit_data, line:entry, vending, ada)
+NYCT1_data = 
+  select(NYCTransit_data, line:entry, vending, ada)
 ```
 
 Character to Logical Expression Conversion
 ```{r}
-NYCTransit_data %>% 
+NYCT1_data %>% 
   mutate(entry = recode(entry, YES = "TRUE", NO = "FALSE"))
 ```
 
-This dataset describes information about each entrance and exit for all subway stations in New York, including, broadly, detailed location of both station and entrance/exit, station name, which routes they lie on, descriptions of entrances (stairs/escalator/etc.), and ADA compliance. Thus far, I have narrowed the scope of this data to include line, latitude and longitude, station name, train routes, entrance type, and whether the station is ADA compliant. I have also cleaned the names of the dataset, and converted the entry expression of "YES/NO" to a logical expression of "TRUE/FALSE".The dimensions are 'nrow(NYCTransit_data)' x 'ncol(NYCTransit_data)'.These data are not tidy.
+This dataset describes information about each entrance and exit for all subway stations in New York, including, broadly, detailed location of both station and entrance/exit, station name, which routes they lie on, descriptions of entrances (stairs/escalator/etc.), and ADA compliance. Thus far, I have narrowed the scope of this data to include line, latitude and longitude, station name, train routes, entrance type, and whether the station is ADA compliant. I have also cleaned the names of the dataset, and converted the entry expression of "YES/NO" to a logical expression of "TRUE/FALSE".The dimensions are `r nrow(NYCT1_data)` x `r ncol(NYCT1_data)`.These data are not tidy.
 
-```{r}
-nrow(NYCTransit_data)
-ncol(NYCTransit_data)
-```
+
 
 Distinct Stations
 
 ```{r}
-  distinct(NYCTransit_data, station_name, line)
-count(distinct(NYCTransit_data, station_name, line))
+  distinct(NYCT1_data, station_name, line)
+count(distinct(NYCT1_data, station_name, line))
 ```
 465 total distinct stations
 
 ADA Compliant Stations
 ```{r}
-filter(NYCTransit_data, ada == TRUE) %>% 
+filter(NYCT1_data, ada == TRUE) %>% 
 distinct(line, station_name) %>%
 count()
 ```
@@ -129,12 +127,12 @@ count()
 
 Proportion of station entrances/exits without vending that allow entrance
 ```{r}
-NYCTransit_data %>% 
+NYCT1_data %>% 
   mutate(entry = recode(entry, YES = "TRUE", NO = "FALSE")) %>% 
 filter(vending == "NO", entry == "TRUE") %>% 
   count()
 
-NYCTransit_data %>% 
+NYCT1_data %>% 
   mutate(entry = recode(entry, YES = "TRUE", NO = "FALSE")) %>% 
 filter(vending =="NO") %>% 
 count()
@@ -148,7 +146,7 @@ Final proportion: 0.3770492
 Reformat route number and route name
 ```{r}
 NYCT_tidy =
-  NYCTransit_data%>%
+  NYCT1_data%>%
   mutate_at(vars(route1:route11), as.character) %>%
   pivot_longer(
     route1:route11,
@@ -160,17 +158,20 @@ NYCT_tidy =
 
 Distinct Stations Serving A train
 ```{r}
-filter(NYCT_tidy, "route_name" == "A" ) %>% 
-distinct(line, station_name) %>%
-count()
-```
+filter(NYCT_tidy, route_name == "A" ) %>% 
+distinct(line, station_name)
 
-Of all distinct stations that serve the A, the following number are ADA compliant.
+```
+There are `r nrow(NYCT_tidy)` distinct stations that serve the A line. 
+
+
 ```{r}
-filter(NYCT_tidy, "route_name" == "A", ada == TRUE) %>% 
+filter(NYCT_tidy, route_name == "A", ada == TRUE) %>% 
 distinct(line, station_name) %>%
 count()
 ```
+Of all distinct stations that serve the A, 17 are ADA compliant.
+
 
 ## Problem 3
 
@@ -195,7 +196,7 @@ month_pols =
   tibble( 
    month = (1:12),
     month_name = month.name) %>% 
-    mutate(month = as.numeric(month))
+    mutate(months = as.numeric(month))
 
 clean_month_pols = left_join(clean_pols, month_pols, by = "month")
 
@@ -206,13 +207,17 @@ clean_month_pols %>%
     select(-prez_gop, -prez_dem, -month, -day)
 
 head(arrange(clean_month_pols, year, month_name))
-  
+
+intermed_pols_ = 
+  clean_month_pols %>% 
+  mutate(year = as.numeric(year))
+
 ```
+
 
 snp cleaning + tidying
 
 ```{r}
-snp_data
 clean_snp = 
   snp_data %>% 
   separate("date", into = c("month", "day", "year")) %>% 
@@ -228,5 +233,58 @@ clean_month_snp = left_join(clean_snp, month_snp, by = "month")
 
 clean_month_snp %>% 
   relocate(year, month)
+
+intermed_snp = 
+  clean_month_snp %>% 
+  mutate(year = as.numeric(year))
+
+
 ```
+
+Tidy unemployment data
+```{r}
+clean_unemp = 
+  unemployment_data %>% 
+  janitor::clean_names() %>% 
+ pivot_longer(
+    jan:dec,
+    names_to = "month",
+    values_to = "percent unemployed"
+ ) %>% 
+   mutate(month = as.numeric(month))
+  
+intermed_unemploy = 
+  clean_unemp %>% 
+  mutate((month = recode(month, jan = "january", feb = "february", mar = "march", apr = "april", may = "may", jun = "june", jul = "july", aug = "august", sep = "september", oct = "october", nov = "november", dec = "december")))
+ 
+intermed_unemploy_2 = 
+  clean_unemp %>% 
+  mutate(year = as.numeric(year))
+
+month_unemp = 
+  tibble( 
+   month = (1:12),
+    month_name = month.name) %>% 
+    mutate("month" = as.numeric(month))
+
+final_unemploy =
+  left_join(intermed_unemploy, month_unemp)
+
+```
+
+
+Joining datasets
+```{r}
+pols_snp = 
+  left_join(intermed_pols_, intermed_snp)
+
+final_join =  
+  left_join(pols_snp, intermed_unemploy)
+
+final_join
+```
+Explain briefly what each dataset contained, and describe the resulting dataset (e.g. give the dimension, range of years, and names of key variables
+
+These data describe the number of national politicians that are democratic or republican at any given time, data pertaining to the stock market (S&P index), and percentage/proportion of unemployment at a given time. The dimensions are `r nrow(final_join)` x `r ncol(final_join)`. The range of years is between `r min(pull(final_join))` and `r max(pull(final_join))`.  Key variables include governor/senator and presidential political affiliation, as related to time.  
+
 
